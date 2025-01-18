@@ -2,7 +2,6 @@
 import { useEffect, useState,useContext } from "react";
 import TestCard from "../components/testCard";
 import { AuthContext } from "../context/AuthContext";
-import FastMathGame from '../components/games/problemSolving/fastMath';
 
 
 const Home = () => {
