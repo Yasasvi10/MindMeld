@@ -57,25 +57,6 @@ const GameSchema = new mongoose.Schema({
   ],
 });
 
-// Middleware method to update stats dynamically
-// GameSchema.methods.updateStats = async function () {
-//   const allScores = this.scores.map((entry) => entry.score);
-
-//   // Recalculate average score
-//   const totalScores = allScores.reduce((acc, score) => acc + score, 0);
-//   this.averageScore = totalScores / allScores.length || 0;
-
-// //   Update Top Percentile Threshold (Top 10% of players)
-// //   const sortedScores = [...allScores].sort((a, b) => b - a);
-// //   const thresholdIndex = Math.floor(allScores.length * 0.1); // Top 10%
-// //   this.topPercentThreshold = sortedScores[thresholdIndex] || 0;
-
-//   const sortedScores = [...allScores].sort((a, b) => b - a);
-//   const thresholdIndex = Math.ceil(allScores.length * 0.1) - 1; // Top 10%
-//   this.topPercentThreshold = sortedScores[thresholdIndex] || sortedScores[sortedScores.length - 1] || 0;
-//   console.log(this.topPercentThreshold);
-//   await this.save();
-// };
 
 GameSchema.methods.updateStats = async function () {
   const allScores = this.scores.map((entry) => entry.score);

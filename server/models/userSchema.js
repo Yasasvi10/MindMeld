@@ -19,7 +19,38 @@ const userSchema = new Schema({
     password:{
         type : String,
         required: true,
+    },
+     // Track performance in each category
+  categoryPerformance: {
+    Memory: {
+      averageScore: { type: Number, default: 0 },
+      gamesPlayed: { type: Number, default: 0 }
+    },
+    Attention: {
+      averageScore: { type: Number, default: 0 },
+      gamesPlayed: { type: Number, default: 0 }
+    },
+    'Reaction time': {
+      averageScore: { type: Number, default: 0 },
+      gamesPlayed: { type: Number, default: 0 }
+    },
+    'Problem Solving': {
+      averageScore: { type: Number, default: 0 },
+      gamesPlayed: { type: Number, default: 0 }
     }
+  },
+  recentScores: [{
+    category: String,
+    score: Number,
+    gameId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Game'
+    },
+    date: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 })
 
 
@@ -77,5 +108,27 @@ userSchema.statics.login = async function (email,password) {
     return user
 }
 
+userSchema.methods.updateCategoryPerformance = async function(category, score) {
+    const categoryStats = this.categoryPerformance[category];
+    const totalScore = categoryStats.averageScore * categoryStats.gamesPlayed + score;
+    categoryStats.gamesPlayed += 1;
+    categoryStats.averageScore = totalScore / categoryStats.gamesPlayed;
+    
+    // Add to recent scores
+    this.recentScores.push({
+      category,
+      score,
+      date: new Date()
+    });
+  
+    // Keep only last 10 scores per category
+    const recentScoreLimit = 10;
+    if (this.recentScores.length > recentScoreLimit) {
+      this.recentScores = this.recentScores.slice(-recentScoreLimit);
+    }
+  
+    await this.save();
+    return this.categoryPerformance;
+  };
 
 module.exports = mongoose.model('User',userSchema)

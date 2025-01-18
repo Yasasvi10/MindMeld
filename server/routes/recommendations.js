@@ -4,6 +4,6 @@ const requireAuth = require('../middleware/requireAuth');
 
 const router = express.Router();
 
-router.get("/recommendations", requireAuth, getRecommendations);
+router.get("/", requireAuth, getRecommendations);
 
 module.exports = router;

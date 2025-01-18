@@ -2,12 +2,29 @@
 import { useEffect, useState,useContext } from "react";
 import TestCard from "../components/testCard";
 import { AuthContext } from "../context/AuthContext";
+import { 
+    Brain, 
+    Zap, 
+    Timer,
+    Puzzle
+  } from 'lucide-react';
+  import { useNavigate } from 'react-router-dom';
+  
+  const iconMap = {
+    'Memory': Brain,
+    'Attention': Zap,
+    'Reaction time': Timer,
+    'Problem Solving': Puzzle
+  };
+  
 
 
 const Home = () => {
   const { user } = useContext(AuthContext);
   const token = user ? user.token : null;
+  const navigate = useNavigate();
   const [analyticsData, setAnalyticsData] = useState(null);
+  const [recommendations, setRecommendations] = useState(null);
   const [error, setError] = useState(null);
 
   const fetchAnalyticsData = async () => {
@@ -30,6 +47,19 @@ const Home = () => {
       return data;
     } catch (err) {
       throw new Error(err.message);
+    }
+  };
+
+  const fetchRecommendations = async () => {
+    try {
+      const response = await fetch('/api/recs', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      return await response.json();
+    } catch (error) {
+      throw new Error('Error fetching recommendations');
     }
   };
 
@@ -97,22 +127,45 @@ const Home = () => {
     },
   ];
 
-  useEffect(() => {
+//   useEffect(() => {
+//     const getData = async () => {
+//       try {
+//         const data = await fetchAnalyticsData();
+//         setAnalyticsData(data);
+//       } catch (err) {
+//         setError(err.message);
+//       }
+//     };
+
+//     getData();
+//   }, []);
+
+useEffect(() => {
     const getData = async () => {
       try {
-        const data = await fetchAnalyticsData();
-        setAnalyticsData(data);
+        const [analyticsResult, recommendationsResult] = await Promise.all([
+          fetchAnalyticsData(),
+          fetchRecommendations()
+        ]);
+        setAnalyticsData(analyticsResult);
+        setRecommendations(recommendationsResult);
       } catch (err) {
         setError(err.message);
       }
     };
 
-    getData();
-  }, []);
+    if (token) {
+      getData();
+    }
+  }, [token]);
+
+  const handleStartExercise = (gameId) => {
+    navigate(`/game/${gameId}`);
+  };
 
   if (error) return <p className="text-red-500">Error: {error}</p>;
 
-  if (!analyticsData) return <p>Loading...</p>;
+  if (!analyticsData || !recommendations ) return <p>Loading...</p>;
 
   return (
     <div className="p-6">
@@ -122,7 +175,7 @@ const Home = () => {
           <TestCard key={test.id} test={test} />
         ))}
        </div>
-      <h2 className="text-2xl font-bold mb-6 p-4">Overall Progress</h2>
+      <h2 className="text-2xl font-bold mb-6 mt-6">Overall Progress</h2>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white p-4 shadow-md rounded-lg">
@@ -162,6 +215,72 @@ const Home = () => {
           </p>
         </div>
       </div>
+
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6 mt-6">Priority Areas</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {recommendations?.priorityAreas.map((area) => {
+            const Icon = iconMap[area.category];
+            const bgColor = area.currentScore < 70 
+              ? 'bg-red-50 border-red-100' 
+              : area.currentScore < 85 
+                ? 'bg-yellow-50 border-yellow-100' 
+                : 'bg-green-50 border-green-100';
+            
+            return (
+              <div key={area.category} className={`rounded-xl border p-6 ${bgColor}`}>
+                <div className="flex items-center gap-4 mb-4">
+                  <Icon className="h-8 w-8 text-gray-700" />
+                  <h3 className="text-xl font-semibold text-black-800">{area.category}</h3>
+                </div>
+                <p className="text-black-600 mb-4">{area.message}</p>
+                <div className="flex justify-between items-center text-sm text-gray-500">
+                  <span>Current Score: {area.currentScore}%</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Recommended Games */}
+      <section>
+        <h2 class="text-2xl font-bold mb-2" id="el-86f84fxk">Recommended Games</h2>
+        {/* <h2 className="text-2xl font-semibold text-gray-800 mb-6"></h2> */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {recommendations?.allCategories.map((category) => {
+            const Icon = iconMap[category.category];
+            const game = category.recommendedGame;
+            return (
+              <div key={category.category} className="bg-white rounded-lg shadow-sm border p-6">
+                <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium mb-4"
+                     style={{
+                       backgroundColor: category.category === recommendations.priorityAreas[0].category 
+                         ? '#FEF3C7' : '#F3F4F6',
+                       color: category.category === recommendations.priorityAreas[0].category 
+                         ? '#92400E' : '#374151'
+                     }}>
+                  <Icon className="h-4 w-4 mr-2" />
+                  {category.category}
+                </div>
+                
+                <h3 className="text-lg font-semibold mb-2">{game?.name}</h3>
+                <p className="text-gray-600 text-sm mb-4">{game?.description}</p>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-500">{game?.duration}</span>
+                  <button
+                    onClick={() => handleStartExercise(game?._id)}
+                    className="text-indigo-600 hover:text-indigo-700 font-medium text-sm inline-flex items-center gap-1"
+                  >
+                    Start Exercise →
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
        
     </div>
   );

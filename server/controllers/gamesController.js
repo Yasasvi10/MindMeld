@@ -52,6 +52,7 @@ const submitScore = async (req, res) => {
   
       // Update average score and top percentile threshold dynamically
       await game.updateStats();
+      await user.updateCategoryPerformance(game.category, score);
   
       // Generate feedback
       const feedback = await generateDynamicFeedback(gameId, score);
