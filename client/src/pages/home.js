@@ -44,7 +44,6 @@ const Home = () => {
         {tests.map((test) => (
           <TestCard key={test.id} test={test} />
         ))}
-        <FastMathGame/>
       </div>
     </div>
   );
