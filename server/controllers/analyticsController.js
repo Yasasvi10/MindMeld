@@ -97,8 +97,8 @@ exports.getAnalytics = async (req, res) => {
       totalTimeInvested: formattedTimeInvested,
       consistency: Math.round(consistency),
       changes: {
-        testsCompleted: Math.round(((totalTests - lastWeekTests) / lastWeekTests) * 100) || 0,
-        consistency: Math.round(((consistency - lastWeekConsistency) / lastWeekConsistency) * 100) || 0,
+        testsCompleted: Math.round(((totalTests - lastWeekTests) / lastWeekTests) * 100) || 100,
+        consistency: Math.round(((consistency - lastWeekConsistency) / lastWeekConsistency) * 100) || 100,
         averageScore: 5, // Example placeholder logic for score change
         timeInvested: 8, // Example placeholder logic for time change
       },
