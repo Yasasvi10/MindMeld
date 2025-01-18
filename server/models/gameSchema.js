@@ -20,7 +20,7 @@ const GameSchema = new mongoose.Schema({
   },
   topPercentThreshold: {
     type: Number,
-    default: 90, // Dynamic threshold for top-performing players
+    default: 10, // Dynamic threshold for top-performing players
   },
   scores: [
     {
@@ -66,10 +66,14 @@ GameSchema.methods.updateStats = async function () {
   this.averageScore = totalScores / allScores.length || 0;
 
 //   Update Top Percentile Threshold (Top 10% of players)
-  const sortedScores = [...allScores].sort((a, b) => b - a);
-  const thresholdIndex = Math.floor(allScores.length * 0.1); // Top 10%
-  this.topPercentThreshold = sortedScores[thresholdIndex] || 0;
+//   const sortedScores = [...allScores].sort((a, b) => b - a);
+//   const thresholdIndex = Math.floor(allScores.length * 0.1); // Top 10%
+//   this.topPercentThreshold = sortedScores[thresholdIndex] || 0;
 
+  const sortedScores = [...allScores].sort((a, b) => b - a);
+  const thresholdIndex = Math.ceil(allScores.length * 0.1) - 1; // Top 10%
+  this.topPercentThreshold = sortedScores[thresholdIndex] || sortedScores[sortedScores.length - 1] || 0;
+  console.log(this.topPercentThreshold);
   await this.save();
 };
 

@@ -13,28 +13,29 @@ const generateDynamicFeedback = async (gameId, userScore) => {
   
     // Determine percentile rank
     const sortedScores = [...allScores].sort((a, b) => b - a);
-    const rank = sortedScores.indexOf(userScore) + 1;
+    // const rank = sortedScores.indexOf(userScore) + 1;
+    const rank = sortedScores.filter(score => score > userScore).length + 1;
+
     const percentile = ((sortedScores.length - rank) / sortedScores.length) * 100;
   
     // Generate motivational message
     let feedback;
-    if (percentile === 100) { 
+    if (percentile <= 1) { 
         feedback = `Outstanding! You belong to the top 1% of players!`;
-    } 
-    else if (userScore >= game.topPercentThreshold) {
-      feedback = `Outstanding! You belong to the top ${Math.ceil(100 - percentile)}% of players!`;
+    } else if (percentile <= Math.ceil(100 - game.topPercentThreshold)) {
+        feedback = `Outstanding! You belong to the top ${Math.ceil(100 - percentile)}% of players!`;
     } else if (userScore > avgScore) {
-      feedback = `Great work! Your score is ${Math.round(userScore - avgScore)} points above the average (${Math.round(avgScore)}).`;
+        feedback = `Great work! Your score is ${Math.round(userScore - avgScore)} points above the average (${Math.round(avgScore)}).`;
     } else {
-      feedback = `Keep practicing! You're only ${Math.round(avgScore - userScore)} points below the average (${Math.round(avgScore)}).`;
+        feedback = `Keep practicing! You're only ${Math.round(avgScore - userScore)} points below the average (${Math.round(avgScore)}).`;
     }
   
     return {
-      feedback,
-      percentile: Math.round(percentile),
-      averageScore: Math.round(avgScore),
+        feedback,
+        percentile: Math.round(percentile),
+        averageScore: Math.round(avgScore),
     };
-  };
+};
 
 
 const submitScore = async (req, res) => {
