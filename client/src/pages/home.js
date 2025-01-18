@@ -122,7 +122,6 @@ const Home = () => {
         {tests.map((test) => (
           <TestCard key={test.id} test={test} />
         ))}
-        <FastMathGame/>
        </div>
       <h2 className="text-2xl font-bold mb-6 p-4">Overall Progress</h2>
       
