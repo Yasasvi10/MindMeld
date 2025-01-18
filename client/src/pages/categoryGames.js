@@ -75,6 +75,7 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import ReactionTimeGame1 from "../components/games/reactionTime/numberMatchingGame";
+import ReactionTimeGame from "../components/games/attention/ReactionTimeGame";
 
 const CategoryGames = () => {
   const { category } = useParams();
@@ -82,7 +83,7 @@ const CategoryGames = () => {
 
   const categoriesData = {
     1: () => <div>Memory Game 1 Component</div>, // Replace with actual component
-    2: () => <div>Memory Game 2 Component</div>, // Replace with actual component
+    2: () => <ReactionTimeGame  />, // Replace with actual component
     3: () => <ReactionTimeGame1 />, // Example of a real component
     4: () => <div>Problem Solving Game Component</div>, // Replace with actual component
   };
@@ -125,6 +126,7 @@ const CategoryGames = () => {
   const filteredGames = games.filter((game) => game.category === category);
 
   const handleStartExercise = (id) => {
+    console.log(id);
     setActiveGame(id); // Set the active game id
   };
 
