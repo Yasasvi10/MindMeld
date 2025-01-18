@@ -1,5 +1,4 @@
 import TestCard from "../components/testCard";
-import FastMathGame from '../components/games/problemSolving/fastMath';
 const Home = () => {
    
   const tests = [
@@ -44,7 +43,6 @@ const Home = () => {
         {tests.map((test) => (
           <TestCard key={test.id} test={test} />
         ))}
-        <FastMathGame/>
       </div>
     </div>
   );

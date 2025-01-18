@@ -18,7 +18,7 @@ const TestCard = ({ test }) => {
         <Link
           to={`/tests/${test.category}`}
           className="bg-blue-500 text-white text-sm px-4 py-1 rounded hover:bg-blue-600"
-        >
+        > Start Test
         </Link>
       </div>
     </div>
