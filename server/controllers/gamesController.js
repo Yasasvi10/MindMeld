@@ -18,7 +18,10 @@ const generateDynamicFeedback = async (gameId, userScore) => {
   
     // Generate motivational message
     let feedback;
-    if (userScore >= game.topPercentThreshold) {
+    if (percentile === 100) { 
+        feedback = `Outstanding! You belong to the top 1% of players!`;
+    } 
+    else if (userScore >= game.topPercentThreshold) {
       feedback = `Outstanding! You belong to the top ${Math.ceil(100 - percentile)}% of players!`;
     } else if (userScore > avgScore) {
       feedback = `Great work! Your score is ${Math.round(userScore - avgScore)} points above the average (${Math.round(avgScore)}).`;
@@ -36,14 +39,14 @@ const generateDynamicFeedback = async (gameId, userScore) => {
 
 const submitScore = async (req, res) => {
     const { gameId } = req.params;
-    const { userId, score } = req.body;
+    const { score } = req.body;
   
     try {
       const game = await Game.findById(gameId);
       if (!game) return res.status(404).send("Game not found");
   
       // Add the new score
-      game.scores.push({ userId, score });
+      game.scores.push({ userId: req.user._id, score });
       await game.save();
   
       // Update average score and top percentile threshold dynamically
@@ -63,8 +66,29 @@ const submitScore = async (req, res) => {
   
 
 
+const createGame = async (req, res) => {
+  const { name, description, category } = req.body;
+
+  try {
+    const newGame = new Game({
+      name,
+      description,
+      category,
+    });
+
+    await newGame.save();
+    res.status(201).json({
+      message: "Game created successfully!",
+      game: newGame,
+    });
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+};
 
 module.exports = {
-    submitScore,
+  submitScore,
+  createGame,  // Export createGame
 };
-  
+
+
