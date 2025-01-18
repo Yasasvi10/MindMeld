@@ -1,0 +1,75 @@
+body {
+    margin: 0;
+    font-family: "Arial", sans-serif;
+    background-color: #f4f4f9;
+  }
+  
+  .game-container {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .start-button,
+  .option-button {
+    font-size: 18px;
+    padding: 10px 20px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .start-button:hover,
+  .option-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .game-info {
+    margin: 20px 0;
+  }
+  
+  .game-target {
+    margin: 20px 0;
+  }
+  
+  .target-number {
+    font-size: 48px;
+    color: #333;
+  }
+  
+  .game-options-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 20px auto;
+    max-width: 400px;
+  }
+  
+  .option-button {
+    width: 80px;
+    height: 80px;
+    font-size: 20px;
+    background-color: #6c757d;
+  }
+  
+  .option-button:hover {
+    background-color: #5a6268;
+  }
+  
+  .results-container {
+    margin: 20px;
+  }
+  
+  .results-container h2 {
+    font-size: 28px;
+    color: #333;
+  }
+  
+  .results-container p {
+    font-size: 18px;
+    color: #555;
+  }
+  
