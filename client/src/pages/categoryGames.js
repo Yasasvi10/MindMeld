@@ -75,16 +75,17 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import ReactionTimeGame1 from "../components/games/reactionTime/numberMatchingGame";
-
+import MemoryGame from "../components/games/memory/MemoryGame";
+import FastMathGame from "../components/games/problemSolving/fastMath";
 const CategoryGames = () => {
   const { category } = useParams();
   const [activeGame, setActiveGame] = useState(null); // State to track the active game
 
   const categoriesData = {
-    1: () => <div>Memory Game 1 Component</div>, // Replace with actual component
+    1: () => <MemoryGame/>, // Replace with actual component
     2: () => <div>Memory Game 2 Component</div>, // Replace with actual component
     3: () => <ReactionTimeGame1 />, // Example of a real component
-    4: () => <div>Problem Solving Game Component</div>, // Replace with actual component
+    4: () => <FastMathGame/>, // Replace with actual component
   };
 
   const games = [
