@@ -21,7 +21,12 @@ const Navbar = () => {
     <header className="bg-gray-100 text-white p-4">
       <div className="container flex justify-between items-center">
         <Link to="/" className="text-xl font-bold">
-          <h1 className="text-blue-500">MinMeld</h1>
+          <div class="flex items-center space-x-2" id="el-sxaldwdd">
+                        <svg class="w-8 h-8 text-indigo-600" fill="currentColor" viewBox="0 0 20 20" id="el-vl0pvwm4">
+                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 9V5a1 1 0 112 0v4h4a1 1 0 110 2h-4v4a1 1 0 11-2 0v-4H5a1 1 0 110-2h4z" id="el-7nt46ftk"></path>
+                        </svg>
+                        <span class="text-xl font-bold text-indigo-800" id="el-rnpxoqiw">MindMeld</span>
+          </div>
         </Link>
         <nav>
           {user && (
