@@ -21,14 +21,11 @@ const Navbar = () => {
     <header className="bg-gray-100 text-white p-4">
       <div className="container flex justify-between items-center">
         <Link to="/" className="text-xl font-bold">
-          <h1 className="text-blue-500">MindMeld</h1>
+          <h2 className="text-blue-800">MindMeld</h2>
         </Link>
         <nav>
           {user && (
             <div className="flex items-center">
-            <button onClick={() => handleScroll("analytics")} className="text-gray-600 hover:text-gray-800">
-                 Analytics
-            </button>
             <span className="mr-4">{user.username}</span>
             <button onClick={handleClick} className="bg-blue-500 px-4 py-2 rounded">Log Out</button>
             </div>

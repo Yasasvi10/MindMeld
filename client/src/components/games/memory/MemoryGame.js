@@ -128,7 +128,7 @@ const MemoryGame = ({ gameId, token }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center ">
       <div className="max-w-md w-full bg-white p-6 rounded-lg shadow-md text-center">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">Memory Game</h1>
 
