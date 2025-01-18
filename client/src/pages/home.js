@@ -122,7 +122,49 @@ const Home = () => {
         {tests.map((test) => (
           <TestCard key={test.id} test={test} />
         ))}
+        <FastMathGame/>
+       </div>
+      <h2 className="text-2xl font-bold mb-6 p-4">Overall Progress</h2>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-white p-4 shadow-md rounded-lg">
+          <h4 className="text-md font-bold">Tests Completed</h4>
+          <p className="text-2xl font-bold text-gray-800">
+            {analyticsData.testsCompleted}
+          </p>
+          <p className="text-sm text-green-500 mt-2">
+            ↑ {analyticsData.changes.testsCompleted}% from last week
+          </p>
+        </div>
+        <div className="bg-white p-4 shadow-md rounded-lg">
+          <h4 className="text-md font-bold">Average Score</h4>
+          <p className="text-2xl font-bold text-gray-800">
+            {analyticsData.averageScore}%
+          </p>
+          <p className="text-sm text-green-500 mt-2">
+            ↑ {analyticsData.changes.averageScore}% from last week
+          </p>
+        </div>
+        <div className="bg-white p-4 shadow-md rounded-lg">
+          <h4 className="text-md font-bold">Time Invested</h4>
+          <p className="text-2xl font-bold text-gray-800">
+            {analyticsData.totalTimeInvested}
+          </p>
+          <p className="text-sm text-green-500 mt-2">
+            ↑ {analyticsData.changes.timeInvested}% from last week
+          </p>
+        </div>
+        <div className="bg-white p-4 shadow-md rounded-lg">
+          <h4 className="text-md font-bold">Consistency</h4>
+          <p className="text-2xl font-bold text-gray-800">
+            {analyticsData.consistency}%
+          </p>
+          <p className="text-sm text-green-500 mt-2">
+            ↑ {analyticsData.changes.consistency}% from last week
+          </p>
+        </div>
       </div>
+       
     </div>
   );
 };
