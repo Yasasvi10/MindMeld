@@ -5,6 +5,7 @@ const cors = require('cors');
 
 const userRoutes = require('./routes/user')
 const gameRoutes = require('./routes/games')
+const analyticsRoutes = require('./routes/analytics')
 
 //express app
 const app = express()
@@ -24,6 +25,7 @@ app.use((req,res,next)=>{
 //user Routes
 app.use('/api/user',userRoutes)
 app.use('/api/games',gameRoutes)
+app.use('/api/analytics',analyticsRoutes)
 
 mongoose.connect(process.env.MONGO_URI)
  .then(()=>{
