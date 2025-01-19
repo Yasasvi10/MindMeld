@@ -2,6 +2,7 @@
 import { useEffect, useState,useContext } from "react";
 import TestCard from "../components/testCard";
 import { AuthContext } from "../context/AuthContext";
+import Recommendations from "../components/lifestyleRec";
 import { 
     Brain, 
     Zap, 
@@ -26,6 +27,14 @@ const Home = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [recommendations, setRecommendations] = useState(null);
   const [error, setError] = useState(null);
+
+  const userScores = {
+    memory: 85,
+    attention: 70,
+    reaction: 55,
+    problemSolving: 45,
+  };
+
 
   const fetchAnalyticsData = async () => {
     try {
@@ -281,6 +290,8 @@ useEffect(() => {
           })}
         </div>
       </section>
+
+      <Recommendations scores={userScores} />
        
     </div>
   );
