@@ -21,7 +21,7 @@ const Navbar = () => {
     <header className="bg-gray-100 text-white p-4">
       <div className="container flex justify-between items-center">
         <Link to="/" className="text-xl font-bold">
-          <h2 className="text-blue-800">MindMeld</h2>
+          <h1 className="text-blue-800">MindMeld</h1>
         </Link>
         <nav>
           {user && (
