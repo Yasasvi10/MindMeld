@@ -1,23 +1,44 @@
 // export default Home;
 import { useEffect, useState,useContext } from "react";
 import TestCard from "../components/testCard";
+import Sidebar from "../components/sidebar";
 import { AuthContext } from "../context/AuthContext";
 import Recommendations from "../components/lifestyleRec";
 import { 
     Brain, 
     Zap, 
     Timer,
-    Puzzle
+    Puzzle,
+    TrendingUp,
+    TrendingDown
   } from 'lucide-react';
   import { useNavigate } from 'react-router-dom';
-  
+  import { 
+    LineChart, 
+    Line, 
+    RadarChart,
+    Radar,
+    PolarGrid,
+    PolarAngleAxis,
+    PolarRadiusAxis,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer
+  } from 'recharts';
   const iconMap = {
     'Memory': Brain,
     'Attention': Zap,
     'Reaction time': Timer,
     'Problem Solving': Puzzle
   };
-  
+  const colorMap = {
+    'Memory': '#60A5FA',
+    'Attention': '#34D399',
+    'Reaction time': '#F87171',
+    'Problem Solving': '#A78BFA'
+  };
 
 
 const Home = () => {
@@ -26,6 +47,8 @@ const Home = () => {
   const navigate = useNavigate();
   const [analyticsData, setAnalyticsData] = useState(null);
   const [recommendations, setRecommendations] = useState(null);
+  const [insights, setInsights] = useState(null);
+  const [timeframe, setTimeframe] = useState('30');
   const [error, setError] = useState(null);
 
   const userScores = {
@@ -69,6 +92,19 @@ const Home = () => {
       return await response.json();
     } catch (error) {
       throw new Error('Error fetching recommendations');
+    }
+  };
+
+  const fetchInsights = async () => {
+    try {
+      const response = await fetch(`/api/analytics/insights?timeframe=${timeframe}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      return await response.json();
+    } catch (error) {
+      throw new Error('Error fetching insights');
     }
   };
 
@@ -152,12 +188,15 @@ const Home = () => {
 useEffect(() => {
     const getData = async () => {
       try {
-        const [analyticsResult, recommendationsResult] = await Promise.all([
+        const [analyticsResult, recommendationsResult,insightsResult] = await Promise.all([
           fetchAnalyticsData(),
-          fetchRecommendations()
+          fetchRecommendations(),
+          fetchInsights()
+
         ]);
         setAnalyticsData(analyticsResult);
         setRecommendations(recommendationsResult);
+        setInsights(insightsResult);
       } catch (err) {
         setError(err.message);
       }
@@ -174,7 +213,13 @@ useEffect(() => {
 
   if (error) return <p className="text-red-500">Error: {error}</p>;
 
-  if (!analyticsData || !recommendations ) return <p>Loading...</p>;
+  if (!analyticsData || !recommendations || !insights ) {
+    return (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      );
+  }
 
   return (
     <div className="p-6">
@@ -292,8 +337,106 @@ useEffect(() => {
       </section>
 
       <Recommendations scores={userScores} />
+      <section className="mb-12">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold text-gray-800">Performance Insights</h2>
+          <select
+            value={timeframe}
+            onChange={(e) => setTimeframe(e.target.value)}
+            className="border rounded-lg px-4 py-2"
+          >
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Performance Over Time */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border h-80">
+            <h3 className="text-lg font-semibold mb-4">Progress Over Time</h3>
+            <ResponsiveContainer width="100%" height="85%">
+              <LineChart data={insights.performanceOverTime}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="date" 
+                  tickFormatter={(date) => new Date(date).toLocaleDateString()}
+                />
+                <YAxis domain={[0, 100]} />
+                <Tooltip 
+                  formatter={(value) => `${value.toFixed(1)}%`}
+                  labelFormatter={(date) => new Date(date).toLocaleDateString()}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="averageScore" 
+                  stroke="#3B82F6" 
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Category Performance Radar */}
+          <div className="bg-white p-6 rounded-xl shadow-sm border h-80">
+            <h3 className="text-lg font-semibold mb-4">Category Performance</h3>
+            <ResponsiveContainer width="100%" height="85%">
+              <RadarChart data={Object.entries(insights.categoryTrends).map(([category, data]) => ({
+                category,
+                score: data.currentScore
+              }))}>
+                <PolarGrid />
+                <PolarAngleAxis dataKey="category" />
+                <PolarRadiusAxis domain={[0, 100]} />
+                <Radar 
+                  name="Score" 
+                  dataKey="score" 
+                  stroke="#3B82F6" 
+                  fill="#3B82F6" 
+                  fillOpacity={0.6} 
+                />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Improvement Trends */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Object.entries(insights.categoryTrends).map(([category, data]) => {
+            const Icon = iconMap[category];
+            const isImproving = data.improvement > 0;
+            return (
+              <div key={category} className="bg-white p-4 rounded-xl shadow-sm border">
+                <div className="flex items-center gap-3 mb-2">
+                  <Icon className="h-6 w-6" style={{ color: colorMap[category] }} />
+                  <h4 className="font-medium">{category}</h4>
+                </div>
+                <div className="flex items-center gap-2 justify-between">
+                  <span className="text-gray-600">
+                    {data.gamesPlayed} games played
+                  </span>
+                  <div className="flex items-center gap-1">
+                    {isImproving ? (
+                      <TrendingUp className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <TrendingDown className="h-4 w-4 text-red-500" />
+                    )}
+                    <span className={isImproving ? "text-green-600" : "text-red-600"}>
+                      {Math.abs(data.improvement)}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      
        
     </div>
+
   );
 };
 

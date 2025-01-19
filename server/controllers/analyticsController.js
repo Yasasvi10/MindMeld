@@ -150,3 +150,148 @@ exports.getAnalytics = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch analytics data" });
   }
 };
+
+const moment = require('moment');
+
+exports.getInsights = async (req, res) => {
+    try {
+        const user = req.user;
+        const timeframe = req.query.timeframe || '30'; // Default to 30 days
+        const daysAgo = moment().subtract(timeframe, 'days').toDate();
+
+        // Filter recent scores within timeframe
+        if (!user.recentScores) user.recentScores = [];
+        if (!user.categoryPerformance) user.categoryPerformance = {};
+        const recentScores = user.recentScores.filter(score => 
+            moment(score.date).isAfter(daysAgo)
+        );
+
+        const categories = Object.keys(user.categoryPerformance).length > 0 
+            ? Object.keys(user.categoryPerformance)
+            : ['Memory', 'Attention', 'Reaction time', 'Problem Solving'];
+        // Group scores by category
+        const scoresByCategory = {};
+        const categoryTrends = {};
+        //const categories = Object.keys(user.categoryPerformance);
+
+        categories.forEach(category => {
+            const categoryScores = recentScores
+                .filter(score => score.category === category)
+                .map(score => ({
+                    score: score.score,
+                    date: score.date
+                }))
+                .sort((a, b) => moment(a.date).diff(moment(b.date)));
+
+            scoresByCategory[category] = categoryScores;
+
+            const categoryPerf = user.categoryPerformance[category] || { 
+                averageScore: 0, 
+                gamesPlayed: 0 
+            };
+            // Calculate improvement trends
+            if (categoryScores.length >= 2) {
+                const firstScore = categoryScores[0].score;
+                const lastScore = categoryScores[categoryScores.length - 1].score;
+                const improvement = ((lastScore - firstScore) / firstScore * 100).toFixed(1);
+                categoryTrends[category] = {
+                    improvement: parseFloat(improvement),
+                    currentScore: lastScore,
+                    gamesPlayed: user.categoryPerformance[category].gamesPlayed
+                };
+            }
+            else {
+                // Provide default values if not enough data
+                categoryTrends[category] = {
+                    improvement: 0,
+                    currentScore: categoryPerf.averageScore,
+                    gamesPlayed: categoryPerf.gamesPlayed
+            };
+           }
+        });
+
+        // Calculate daily averages for performance over time
+    //     const dailyAverages = recentScores.reduce((acc, score) => {
+    //         const day = moment(score.date).format('YYYY-MM-DD');
+    //         if (!acc[day]) {
+    //             acc[day] = { total: 0, count: 0 };
+    //         }
+    //         acc[day].total += score.score;
+    //         acc[day].count += 1;
+    //         return acc;
+    //     }, {});
+
+    //     const performanceOverTime = Object.entries(dailyAverages).map(([date, data]) => ({
+    //         date,
+    //         averageScore: data.total / data.count
+    //     })).sort((a, b) => moment(a.date).diff(moment(b.date)));
+
+    //     // Calculate strengths and weaknesses
+    //     const strengthsAndWeaknesses = categories
+    //         .map(category => ({
+    //             category,
+    //             averageScore: user.categoryPerformance[category].averageScore,
+    //             gamesPlayed: user.categoryPerformance[category].gamesPlayed
+    //         }))
+    //         .sort((a, b) => b.averageScore - a.averageScore);
+
+    //     const insights = {
+    //         scoresByCategory,
+    //         categoryTrends,
+    //         performanceOverTime,
+    //         strengthsAndWeaknesses: {
+    //             strengths: strengthsAndWeaknesses.slice(0, 2),
+    //             weaknesses: strengthsAndWeaknesses.slice(-2).reverse()
+    //         }
+    //     };
+
+    //     res.status(200).json(insights);
+    const performanceOverTime = [];
+    const dailyScores = {};
+
+    recentScores.forEach(score => {
+        const day = moment(score.date).format('YYYY-MM-DD');
+        if (!dailyScores[day]) {
+            dailyScores[day] = { total: 0, count: 0 };
+        }
+        dailyScores[day].total += score.score;
+        dailyScores[day].count += 1;
+    });
+
+    // Convert daily scores to array format
+    Object.entries(dailyScores).forEach(([date, data]) => {
+        performanceOverTime.push({
+            date,
+            averageScore: data.total / data.count
+        });
+    });
+    performanceOverTime.sort((a, b) => moment(a.date).diff(moment(b.date)));
+
+    // Calculate strengths and weaknesses
+    const strengthsAndWeaknesses = categories
+        .map(category => ({
+            category,
+            averageScore: (user.categoryPerformance[category]?.averageScore || 0),
+            gamesPlayed: (user.categoryPerformance[category]?.gamesPlayed || 0)
+        }))
+        .sort((a, b) => b.averageScore - a.averageScore);
+
+    const insights = {
+        scoresByCategory,
+        categoryTrends,
+        performanceOverTime: performanceOverTime.length > 0 ? performanceOverTime : [
+            { date: moment().format('YYYY-MM-DD'), averageScore: 0 }
+        ],
+        strengthsAndWeaknesses: {
+            strengths: strengthsAndWeaknesses.slice(0, 2),
+            weaknesses: strengthsAndWeaknesses.slice(-2).reverse()
+        }
+    };
+
+    res.status(200).json(insights);
+    } catch (error) {
+        console.error('Insights error:', error);
+        res.status(500).json({ error: 'Error generating insights' });
+    }
+};
+
